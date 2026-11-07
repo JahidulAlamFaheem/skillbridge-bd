@@ -64,11 +64,11 @@ export function LoginForm({ callbackUrl, registered = false }: LoginFormProps) {
   const isLoading = status === "loading";
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {registered && status === "idle" && (
         <div
           role="status"
-          className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
+          className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
         >
           Account created! Sign in with your email and password below.
         </div>
@@ -77,7 +77,7 @@ export function LoginForm({ callbackUrl, registered = false }: LoginFormProps) {
       {status === "error" && errorMessage && (
         <div
           role="alert"
-          className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
         >
           {errorMessage}
         </div>
@@ -86,54 +86,64 @@ export function LoginForm({ callbackUrl, registered = false }: LoginFormProps) {
       {status === "success" && (
         <div
           role="status"
-          className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
+          className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
         >
           Signed in! Redirecting to your dashboard...
         </div>
       )}
 
       <div>
-        <label htmlFor="login-email" className="block text-sm font-medium text-slate-900">
+        <label htmlFor="login-email" className="block text-sm font-semibold text-slate-900">
           Email address
         </label>
-        <input
-          id="login-email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading || status === "success"}
-          className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-100"
-        />
+        <div className="relative mt-1.5">
+          <input
+            id="login-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="e.g. name@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading || status === "success"}
+            className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs placeholder:text-slate-400 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue disabled:bg-slate-100"
+          />
+        </div>
       </div>
 
       <div>
-        <label htmlFor="login-password" className="block text-sm font-medium text-slate-900">
+        <label htmlFor="login-password" className="block text-sm font-semibold text-slate-900">
           Password
         </label>
-        <input
-          id="login-password"
-          name="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading || status === "success"}
-          className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-100"
-        />
+        <div className="relative mt-1.5">
+          <input
+            id="login-password"
+            name="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Enter your account password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading || status === "success"}
+            className="block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs placeholder:text-slate-400 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue disabled:bg-slate-100"
+          />
+        </div>
       </div>
 
       <button
         type="submit"
         disabled={isLoading || status === "success"}
-        className="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-blue px-4 py-3 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-blue-hover focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isLoading ? "Signing in..." : "Sign in"}
+        {isLoading ? "Signing in..." : "Sign In to SkillBridge BD"}
+        {!isLoading && (
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        )}
       </button>
     </form>
   );
 }
-
