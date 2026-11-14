@@ -1,12 +1,20 @@
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, type ProjectKind } from "@/generated/prisma/client";
 import { getOrCreateCandidateProfileId } from "@/lib/candidate/projects";
 import { prisma } from "@/lib/db";
 import type { CanonicalSkill, SkillCatalogEntry } from "@/lib/skills/normalise";
 import { MAX_CANDIDATE_SKILLS } from "@/lib/validation/skill";
 
+export type LinkedEvidenceProject = {
+  id: string;
+  title: string;
+  url: string | null;
+  kind: ProjectKind;
+};
+
 export type OwnCandidateSkill = {
   id: string;
   skill: CanonicalSkill;
+  evidenceProjects: LinkedEvidenceProject[];
 };
 
 const CANDIDATE_SKILL_SELECT = {
@@ -18,7 +26,36 @@ const CANDIDATE_SKILL_SELECT = {
       slug: true,
     },
   },
+  evidence: {
+    select: {
+      project: {
+        select: {
+          id: true,
+          title: true,
+          url: true,
+          kind: true,
+        },
+      },
+    },
+    orderBy: {
+      project: {
+        title: "asc",
+      },
+    },
+  },
 } as const;
+
+type RawCandidateSkillRow = Prisma.CandidateSkillGetPayload<{
+  select: typeof CANDIDATE_SKILL_SELECT;
+}>;
+
+function mapCandidateSkillRow(row: RawCandidateSkillRow): OwnCandidateSkill {
+  return {
+    id: row.id,
+    skill: row.skill,
+    evidenceProjects: row.evidence.map((entry) => entry.project),
+  };
+}
 
 export async function listControlledSkills(): Promise<SkillCatalogEntry[]> {
   const rows = await prisma.skill.findMany({
@@ -51,7 +88,7 @@ export async function listControlledSkills(): Promise<SkillCatalogEntry[]> {
 export async function listOwnCandidateSkills(userId: string): Promise<OwnCandidateSkill[]> {
   const candidateProfileId = await getOrCreateCandidateProfileId(userId);
 
-  return prisma.candidateSkill.findMany({
+  const rows = await prisma.candidateSkill.findMany({
     where: { candidateProfileId },
     select: CANDIDATE_SKILL_SELECT,
     orderBy: {
@@ -60,6 +97,8 @@ export async function listOwnCandidateSkills(userId: string): Promise<OwnCandida
       },
     },
   });
+
+  return rows.map(mapCandidateSkillRow);
 }
 
 export type AddOwnCandidateSkillResult =
@@ -104,7 +143,7 @@ export async function addOwnCandidateSkill(
         select: CANDIDATE_SKILL_SELECT,
       });
 
-      return { ok: true, candidateSkill: created };
+      return { ok: true, candidateSkill: mapCandidateSkillRow(created) };
     });
   } catch (err: unknown) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
