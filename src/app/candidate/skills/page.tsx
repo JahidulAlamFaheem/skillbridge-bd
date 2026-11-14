@@ -3,23 +3,31 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { SkillsManager } from "@/components/candidate/skills-manager";
 import { requireRole } from "@/lib/auth/session";
+import { listOwnProjects } from "@/lib/candidate/projects";
 import {
   listControlledSkills,
   listOwnCandidateSkills,
 } from "@/lib/candidate/skills";
 
 export const metadata: Metadata = {
-  title: "My Skills — SkillBridge BD",
+  title: "My Skills & Evidence — SkillBridge BD",
 };
 
 async function SkillsContent() {
   const user = await requireRole("CANDIDATE");
-  const [skills, catalog] = await Promise.all([
+  const [skills, catalog, projects] = await Promise.all([
     listOwnCandidateSkills(user.id),
     listControlledSkills(),
+    listOwnProjects(user.id),
   ]);
 
-  return <SkillsManager skills={skills} catalog={catalog} />;
+  return (
+    <SkillsManager
+      skills={skills}
+      catalog={catalog}
+      projects={projects}
+    />
+  );
 }
 
 function SkillsFallback() {
@@ -40,10 +48,14 @@ export default function CandidateSkillsPage() {
       <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            My skills
+            My skills &amp; project evidence
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Select skills from the controlled catalog to show on your candidate profile.
+            Select skills from the controlled catalog and link your projects or portfolio items as
+            evidence.
+          </p>
+          <p className="mt-1.5 text-xs font-medium text-slate-500">
+            Evidence links are added by you. Employers decide how much weight to give them.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
